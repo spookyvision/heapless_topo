@@ -68,8 +68,8 @@ impl From<(usize, usize)> for Edge {
 #[cfg_attr(feature = "defmt-03", derive(defmt::Format))]
 #[derive(Default, PartialEq, Eq, Clone)]
 
-pub struct Graph<const EDGES: usize> {
-    edges: Vec<Edge, EDGES>,
+pub struct Graph<const CAP: usize> {
+    edges: Vec<Edge, CAP>,
 }
 
 impl<const CAP: usize> Graph<CAP> {
