@@ -7,7 +7,7 @@ description = "no-std topological sort using `heapless`"
 repository = "https://github.com/spookyvision/heapless_topo"
 readme = "README.md"
 license = "MIT"
-keywords = ["graph", "toposort", "topological"]
+keywords = ["graph", "toposort", "topological", "no_std"]
 
 [dependencies]
 defmt = { version = ">=0.2.0,<0.4", optional = true }
