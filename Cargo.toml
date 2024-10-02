@@ -1,6 +1,6 @@
 [package]
 name = "heapless_topo"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["Anatol Ulrich"]
 description = "no-std topological sort using `heapless`"

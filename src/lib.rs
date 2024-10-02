@@ -44,8 +44,14 @@ pub enum Error {
 #[cfg_attr(feature = "defmt-03", derive(defmt::Format))]
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub struct Edge {
-    from: usize,
-    to: usize,
+    pub from: usize,
+    pub to: usize,
+}
+
+impl Edge {
+    pub fn new(from: usize, to: usize) -> Self {
+        Self { from, to }
+    }
 }
 
 impl From<(usize, usize)> for Edge {
