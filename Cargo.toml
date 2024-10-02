@@ -1,0 +1,12 @@
+[package]
+name = "heapless_topo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+defmt = { version = ">=0.2.0,<0.4", optional = true }
+heapless = "0.8.0"
+
+[features]
+std = []
+defmt-03 = ["dep:defmt"]
