@@ -2,6 +2,12 @@
 name = "heapless_topo"
 version = "0.1.0"
 edition = "2021"
+authors = ["Anatol Ulrich"]
+description = "no-std topological sort using `heapless`"
+repository = "https://github.com/spookyvision/heapless_topo"
+readme = "README.md"
+license = "MIT"
+keywords = ["graph", "toposort", "topological"]
 
 [dependencies]
 defmt = { version = ">=0.2.0,<0.4", optional = true }
