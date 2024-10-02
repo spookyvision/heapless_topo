@@ -66,14 +66,14 @@ pub struct Graph<const EDGES: usize> {
     edges: Vec<Edge, EDGES>,
 }
 
-impl<const EDGES: usize> Graph<EDGES> {
-    /// Create a new, empty graph
+impl<const CAP: usize> Graph<CAP> {
+    /// Create a new, empty graph.
     pub fn new() -> Self {
         Self { edges: Vec::new() }
     }
 
     /// Create a new graph from existing edge data
-    pub fn new_with_edges(edges: Vec<Edge, EDGES>) -> Self {
+    pub fn new_with_edges(edges: Vec<Edge, CAP>) -> Self {
         Self { edges }
     }
 
@@ -84,16 +84,17 @@ impl<const EDGES: usize> Graph<EDGES> {
     }
 
     /// compute topological sort, consuming self.
-    pub fn into_topo_sorted(self) -> Result<Vec<usize, EDGES>, Error> {
-        let mut res = Vec::new();
+    pub fn into_topo_sorted(self) -> Result<Vec<usize, CAP>, Error> {
+        let mut edges = self.edges;
+
+        let mut topo_sorted = Vec::new();
         // compute a list of starting nodes, i.e. nodes with no incoming edges
         //
-        // reuse EDGES size here since it's an upper bound.
+        // reuse CAP size here to prevent generics clutter.
         // nb: in dense graphs this is wasteful.
-        let mut starting_nodes: FnvIndexSet<usize, EDGES> = FnvIndexSet::new();
+        let mut starting_nodes: FnvIndexSet<usize, CAP> = FnvIndexSet::new();
 
-        let mut edges = self.edges;
-        // for all edges, assume they go from a starting node
+        // first assume all edges connect from a starting node
         for edge in &edges {
             starting_nodes
                 .insert(edge.from)
@@ -119,19 +120,20 @@ impl<const EDGES: usize> Graph<EDGES> {
             starting_nodes.remove(&node);
 
             // add N to L
-            res.push(node).map_err(|_| Error::OverCapacity)?;
+            topo_sorted.push(node).map_err(|_| Error::OverCapacity)?;
 
             // for each node m with an edge e from n to m, do
             // remove edge e from the graph
 
             // keep track of edges that have become starting
-            let mut starting_edges: Vec<bool, EDGES> = Vec::new();
+            let mut starting_edges: Vec<bool, CAP> = Vec::new();
             // fill with default (false)
-            starting_edges.resize_default(EDGES).unwrap();
+            starting_edges.resize_default(CAP).unwrap();
             for (idx, edge) in edges.iter().enumerate() {
                 if edge.from == node {
+                    // this edge is from a starting node, so mark the edge as starting, too
                     starting_edges[idx] = true;
-                    // check if m has other incoming edges, if not, add m to S
+                    // check if m has other incoming edges, if not, add node m to the starting edge set
                     let mut m_has_become_starting = true;
                     for check_edge in &edges {
                         if check_edge.to == edge.to && check_edge.from != edge.from {
@@ -154,7 +156,7 @@ impl<const EDGES: usize> Graph<EDGES> {
             edges.retain(|_| !it.next().unwrap());
         }
         if edges.is_empty() {
-            Ok(res)
+            Ok(topo_sorted)
         } else {
             Err(Error::Cycle)
         }
@@ -194,6 +196,20 @@ mod tests {
         let res = graph.into_topo_sorted();
         let expected = [1, 2, 3, 4, 5].as_slice().try_into().unwrap();
         assert_eq!(Ok(expected), res);
+    }
+
+    #[test]
+    fn ok_branching() {
+        // the first 4 edges imply the only possible topological sorting is 1,2,3,4,5
+        let edge_data = [(1, 2), (1, 3), (2, 4), (3, 4)];
+        let mut graph = Graph::<CAPACITY>::new();
+        for edge in edge_data.into_iter() {
+            graph.insert_edge(edge.into()).unwrap();
+        }
+        let res = graph.into_topo_sorted();
+        // there is no unique toposort of this graph, so we can just assert ok
+        // if we don't want to rely on implementation details
+        assert!(res.is_ok());
     }
 
     #[test]
